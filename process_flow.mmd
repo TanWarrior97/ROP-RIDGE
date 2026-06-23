@@ -1,0 +1,40 @@
+graph TD
+    %% Styling
+    classDef dataset fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#000
+    classDef model fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px,color:#000
+    classDef training fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000
+    classDef output fill:#fff3e0,stroke:#fb8c00,stroke-width:2px,color:#000
+    classDef postprocess fill:#e0f7fa,stroke:#00acc1,stroke-width:2px,color:#000
+
+    %% Data Stage
+    subgraph Phase1 [1. Data Acquisition & Preprocessing]
+        A([Raw HVDROPDB Clinical Scans]):::dataset --> B([Ground Truth Annotations<br/>OD, BV, Ridge Masks]):::dataset
+        A & B --> C{Preprocessing Engine}:::dataset
+        C -->|Enhance Micro-Contrast| D(CLAHE Equalization):::dataset
+        C -->|Avoid Memorization| E(Spatial Shifts & Rotations):::dataset
+        C -->|Simulate Lens Noise| F(Gaussian Noise Injections):::dataset
+    end
+
+    %% Architecture Stage
+    subgraph Phase2 [2. Brain Structure & Training Loop]
+        D & E & F --> G[EfficientNet-B4 Encoder<br/>Recognizes Deep Patterns]:::model
+        G --> H[UNet++ Decoder<br/>Maps Spatial Geography accurately]:::model
+        
+        H --> I{Hybrid Mathematical Scorer}:::training
+        I --> J(Dice Loss<br/>Rewards Physical Overlap):::training
+        I --> K(Focal Loss<br/>Targets Hard Edge Pixels):::training
+        I --> L(BCE Logits Loss<br/>Maintains Boundary Density):::training
+        
+        J & K & L --> M((Train for 40 Epochs<br/>Cosine Annealing Scheduler)):::training
+    end
+
+    %% Output Stage
+    subgraph Phase3 [3. Output Refinement & Visulization]
+        M --> O[Raw Tensors Array<br/>AI's Initial Guesses]:::output
+        O --> P{Morphological Refinement}:::postprocess
+        P -->|Skeletonize| Q(Thin Vessels to 1px Spine):::postprocess
+        Q -->|Dilate| R(Thicken smoothly to exactly 3px):::postprocess
+        
+        R --> S([Synthesize clean RGB Overlays<br/>Red=OD | Green=BV | Blue=Ridge]):::output
+        O --> T([Thermal AI Confidence Heatmaps]):::output
+    end
